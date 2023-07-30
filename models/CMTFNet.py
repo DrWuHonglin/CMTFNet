@@ -220,9 +220,9 @@ class Fusion(nn.Module):
         x = self.post_conv(x)
         return x
 
-class seg_head(nn.Module):
+class MAF(nn.Module):
     def __init__(self, dim, fc_ratio, dilation=[3, 5, 7], dropout=0., num_classes=6):
-        super(seg_head, self).__init__()
+        super(MAF, self).__init__()
 
         self.conv0 = nn.Conv2d(dim, dim//fc_ratio, 1)
         self.bn0 = nn.BatchNorm2d(dim//fc_ratio)
@@ -314,7 +314,7 @@ class Decoder(nn.Module):
         self.Conv3 = ConvBN(encode_channels[-3], encode_channels[-4], 1)
 
         self.p1 = Fusion(encode_channels[-4])
-        self.seg_head = seg_head(encode_channels[-4], fc_ratio=fc_ratio, dilation=dilation[3], dropout=dropout, num_classes=num_classes)
+        self.seg_head = MAF(encode_channels[-4], fc_ratio=fc_ratio, dilation=dilation[3], dropout=dropout, num_classes=num_classes)
 
         self.init_weight()
 
@@ -347,7 +347,6 @@ class Decoder(nn.Module):
                 if m.bias is not None:
                     nn.init.constant_(m.bias, 0)
 
-# flops:  32856264640.0 params:  30070643.0 -> [1, 3, 512, 512]
 class CMTFNet(nn.Module):
     def __init__(self,
                  encode_channels=[256, 512, 1024, 2048],
